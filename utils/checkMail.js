@@ -191,16 +191,19 @@ async function searchEmails(searchCriteria = {}, imapUser = {}) {
             });
 
             //mark attributes email as read
-            msg.once('attributes', function(attrs) {
-              let uid = attrs.uid;
-              imap.addFlags(uid, ['\\Seen'], function (err) {
-                  if (err) {
-                      console.log(err);
-                  } else {
-                      console.log("Done, marked email as read!")
-                  }
+            if(!all){
+              msg.once('attributes', function(attrs) {
+                let uid = attrs.uid;
+                imap.addFlags(uid, ['\\Seen'], function (err) {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        console.log("Done, marked email as read!")
+                    }
+                });
               });
-            });
+            }
+            
             
           });
 

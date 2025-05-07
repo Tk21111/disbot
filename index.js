@@ -164,7 +164,7 @@ setInterval(async () => {
 
 			const watcherEachGuild = await Watcher.find({guild : f})
 
-	
+			console.log(watcherEachGuild)
 
 			//each guild
 			for (let i of watcherEachGuild){
@@ -177,8 +177,7 @@ setInterval(async () => {
 					process.env.TOKEN,
 					async (err , decode) => {
 		
-						if(err) {reject(err); return console.log("jwt.vertify err : " + err); }
-						console.log(i)
+						if(err) {reject(err); console.log("jwt.vertify err : " + err); }
 						const mails = await searchEmails({ sender : i.sender , subject : i.content , _id : i._id , all : false} , { email : i.email , pwd : decode.pwd})
 						
 						mailSummary[i.channel] = mailSummary[i.channel] ? mailSummary[i.channel] += mails.map((m, i) => `**${i + 1}.** ${m.subject || 'No Subject'} from ${m.from || 'Unknown Sender'} \n ${m.content || 'No content'} \n ${m.attachment || 'No attachment'} \n ${m.date || ""}`).join('\n') : mails.map((m, i) => `**${i + 1}.** ${m.subject || 'No Subject'} from ${m.from || 'Unknown Sender'} \n ${m.content || 'No content'} \n ${m.attachment || 'No attachment'} \n ${m.date || ""}`).join('\n')
@@ -190,12 +189,12 @@ setInterval(async () => {
 		
 			
 			
-			if(Object.keys(mailSummary) == 0) return
+			if(Object.keys(mailSummary) == 0) continue
 
 			//combine channel
 			for (let k of Object.keys(mailSummary)){
 
-				if(!mailSummary[k]) return
+				if(!mailSummary[k] || mailSummary[k].trim() === '') continue
 				
 				const embed = new EmbedBuilder()
 				.setTitle(`📬 Results for tracker`)

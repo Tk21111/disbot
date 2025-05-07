@@ -11,7 +11,7 @@ module.exports = {
 
         await interaction.deferReply({ ephemeral: true });
 
-        const data = await Watcher.find().select(" -pwd")
+        const data = await Watcher.find({guild : interaction.guildId , watcher : interaction.user.id}).select(" -pwd")
 
         if(!data){
             await interaction.editReply("No watcher");
@@ -20,7 +20,7 @@ module.exports = {
         const option = data.map(val => 
             (new StringSelectMenuOptionBuilder ()
                 .setLabel(val.name || ` _id : ${val._id}`)
-                .setDescription("select to delete watcher")
+                .setDescription(`id : ${(val._id).toString()}`)
                 .setValue((val._id).toString())
         ));
 
