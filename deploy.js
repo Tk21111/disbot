@@ -7,7 +7,8 @@ const commands = [];
 const foldersPath = path.join(__dirname, 'commands');
 const commandFolders = fs.readdirSync(foldersPath);
 
-const dotenv = require('dotenv')
+const dotenv = require('dotenv');
+const Watcher = require('./model/Watcher');
 
 dotenv.config();
 
@@ -35,13 +36,20 @@ const rest = new REST().setToken(process.env.DISCORD_TOKEN);
 	try {
 		console.log(`Started refreshing ${commands.length} application (/) commands.`);
 
-		// The put method is used to fully refresh all commands in the guild with the current set
-		const data = await rest.put(
-			Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),
-			{ body: commands },
-		);
+		const guild = process.env.GUILD_ID.split(' ')
 
-		console.log(`Successfully reloaded ${data.length} application (/) commands.`);
+		for (const i of guild){
+			// The put method is used to fully refresh all commands in the guild with the current set
+			const data = await rest.put(
+				Routes.applicationGuildCommands(process.env.CLIENT_ID, i),
+				{ body: commands },
+			);
+
+			console.log(`Successfully reloaded ${data.length} application (/) commands.`);
+
+		}
+		
+
 	} catch (error) {
 		// And of course, make sure you catch and log any errors!
 		console.error(error);

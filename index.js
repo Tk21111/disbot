@@ -1,13 +1,17 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const { Client, Collection, Events, GatewayIntentBits, MessageFlags } = require('discord.js');
+const { Client, Collection, Events, GatewayIntentBits, MessageFlags, EmbedBuilder } = require('discord.js');
 const client = new Client({ intents: [GatewayIntentBits.MessageContent , GatewayIntentBits.GuildMembers , GatewayIntentBits.Guilds] });
 
 const dotenv = require('dotenv');
 dotenv.config()
 
 const mongoose = require('mongoose');
-
+const Watcher = require('./model/Watcher');
+const Email = require('./model/Email');
+const {searchEmails } = require('./utils/checkMail');
+const checkMail = require('./commands/utility/checkMail');
+const jwt = require('jsonwebtoken');
 
 client.commands = new Collection();
 const foldersPath = path.join(__dirname, 'commands');
@@ -56,6 +60,69 @@ client.once(Events.ClientReady, readyClient => {
 	console.log(`Ready! Logged in as ${readyClient.user.tag}`);
 });
 
+client.on(Events.InteractionCreate , async (interaction) => {
+	if(!interaction.isStringSelectMenu()) return;
+
+	if(interaction.customId === "select_watcher"){
+
+		await interaction.deferReply({ ephemeral: true });
+
+		const _id = interaction.values[0];
+		const result = await Watcher.findById(_id);
+
+		//const mails = await searchEmails({ sender : result.sender , subject : result.content } , { email : result.email , pwd : result.pwd})
+	
+		jwt.verify(
+			result.pwd,
+			process.env.TOKEN,
+			async (err , decode) => {
+
+				if(err) return console.log("jwt.vertify err : " + err);
+
+				const mails = await searchEmails({ sender : result.sender , subject : result.content , _id : _id , all : true} , { email : result.email , pwd : decode.pwd})
+
+				console.log(mails)
+		
+				const mailSummary = mails.length > 0
+						? mails.map((m, i) => `**${i + 1}.** ${m.subject || 'No Subject'} from ${m.from || 'Unknown Sender'} \n ${m.content || 'No content'} \n ${m.attachment || 'No attachment'} \n ${m.date}`).join('\n')
+						: 'No matching emails found.';
+
+					const embed = new EmbedBuilder()
+						.setTitle(`📬 Results for ${result.email}`)
+						.setColor(0x00ADEF)
+						.setDescription(mailSummary.slice(0,4095)) //lol 
+						.setFooter({ text: 'Filtered using your watcher settings' })
+						.setTimestamp();
+
+					await interaction.editReply({ embeds: [embed] });
+				}
+			)
+
+	}
+
+	if(interaction.customId == "delete_watcher"){
+
+		try {
+			await interaction.deferReply({ ephemeral: true });
+			const _id = interaction.values[0];
+			const result = await Watcher.findByIdAndDelete(_id);
+
+			const embed = new EmbedBuilder()
+				.setTitle(`Deleted ${result.name}`)
+				.setColor('Red')
+				.setTimestamp();
+
+			await interaction.editReply({embeds : [embed]})
+			
+		} catch (err){
+			console.log("delete watcher : " + err)
+		}
+		
+
+
+	}
+})
+
 client.on(Events.InteractionCreate, async interaction => {
 
     //check if using cmd
@@ -85,6 +152,75 @@ client.on(Events.InteractionCreate, async interaction => {
 	}
 });
 
+
+setInterval(async () => {
+	try {
+
+		const watcher = await Watcher.distinct('guild');
+
+		for (let f of watcher){
+
+			let mailSummary = {};
+
+			const watcherEachGuild = await Watcher.find({guild : f})
+
+	
+
+			//each guild
+			for (let i of watcherEachGuild){
+
+
+				await new Promise((resolve , reject) => {
+					
+					jwt.verify(
+					i.pwd,
+					process.env.TOKEN,
+					async (err , decode) => {
+		
+						if(err) {reject(err); return console.log("jwt.vertify err : " + err); }
+						console.log(i)
+						const mails = await searchEmails({ sender : i.sender , subject : i.content , _id : i._id , all : false} , { email : i.email , pwd : decode.pwd})
+						
+						mailSummary[i.channel] = mailSummary[i.channel] ? mailSummary[i.channel] += mails.map((m, i) => `**${i + 1}.** ${m.subject || 'No Subject'} from ${m.from || 'Unknown Sender'} \n ${m.content || 'No content'} \n ${m.attachment || 'No attachment'} \n ${m.date || ""}`).join('\n') : mails.map((m, i) => `**${i + 1}.** ${m.subject || 'No Subject'} from ${m.from || 'Unknown Sender'} \n ${m.content || 'No content'} \n ${m.attachment || 'No attachment'} \n ${m.date || ""}`).join('\n')
+						resolve(null)
+					}
+				)}
+			
+			)
+			console.log("here")
+			console.log(mailSummary)
+			
+			
+
+			//combine channel
+			for (let k of Object.keys(mailSummary)){
+
+				const embed = new EmbedBuilder()
+				.setTitle(`📬 Results for tracker`)
+				.setColor(0x00ADEF)
+				.setDescription(mailSummary[k].slice(0,4085))
+				.setFooter({ text: 'Filtered using your watcher settings' })
+				.setTimestamp();
+		
+				// Send to a specific channel by its ID (replace 'yourChannelID' with the actual channel ID)
+				const channel = await client.channels.fetch(k);
+				await channel.send({ embeds: [embed] });
+			}
+
+				
+			//const mails = await searchEmails({ sender : i.sender , subject : i.content , _id : i._id , all : false} , { email : i.email , pwd : i.pwd})
+
+			
+			}
+		}
+		} catch (error) {
+		console.error('Error fetching emails:', error);
+		// Optionally, send an error message to the same channel
+		const channel = await client.channels.fetch('1369373549533466698');
+		await channel.send('There was an error fetching the emails.');
+		}
+  }, 1000 * 10 );
+  
 
 
 client.login(process.env.DISCORD_TOKEN);

@@ -8,14 +8,16 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "nodemon": "nodemon index.js "
+    "nodemon": "node deploy && nodemon index.js "
   },
   "dependencies": {
     "base64-stream": "^1.0.0",
+    "bcrypt": "^5.1.1",
     "discord.js": "^14.19.3",
     "dotenv": "^16.5.0",
     "googleapis": "^148.0.0",
     "imap-simple": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
     "mailparser": "^3.7.2",
     "mongoose": "^8.14.1",
     "nodemon": "^3.1.10"
