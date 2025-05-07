@@ -11,9 +11,16 @@
     "nodemon": "nodemon index.js "
   },
   "dependencies": {
+    "base64-stream": "^1.0.0",
     "discord.js": "^14.19.3",
     "dotenv": "^16.5.0",
+    "googleapis": "^148.0.0",
+    "imap-simple": "^5.1.0",
+    "mailparser": "^3.7.2",
     "mongoose": "^8.14.1",
     "nodemon": "^3.1.10"
+  },
+  "devDependencies": {
+    "node-imap": "^0.9.6"
   }
 }

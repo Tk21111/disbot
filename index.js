@@ -1,7 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { Client, Collection, Events, GatewayIntentBits, MessageFlags } = require('discord.js');
-const client = new Client({ intents: [GatewayIntentBits.MessageContent , GatewayIntentBits.GuildMembers] });
+const client = new Client({ intents: [GatewayIntentBits.MessageContent , GatewayIntentBits.GuildMembers , GatewayIntentBits.Guilds] });
 
 const dotenv = require('dotenv');
 dotenv.config()
@@ -27,18 +27,29 @@ for (const folder of commandFolders) {
 	}
 }
 
+// Connect to MongoDB first
+mongoose.connect(process.env.MOGODB, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 30000 // Increase timeout to 30 seconds
+})
+.then(() => {
+    console.log('Connected to MongoDB');
+    // Only start the Discord bot after successful DB connection
+    return client.login(process.env.DISCORD_TOKEN);
+})
+.then(() => {
+    console.log('Bot logged in');
+})
+.catch(err => {
+    console.error('Database connection error:', err);
+    process.exit(1); // Exit the process if DB connection fails
+});
 
-(
-	async () =>{
-		try{
-			await mongoose.connect(process.env.MOGODB);
-		} catch (err){
-			console.log(err);
-		}
-		
-	}
-)
-
+// Client ready event
+client.once(Events.ClientReady, readyClient => {
+    console.log(`Ready! Logged in as ${readyClient.user.tag}`);
+});
 
 
 client.once(Events.ClientReady, readyClient => {
