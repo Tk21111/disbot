@@ -15,8 +15,8 @@ module.exports = {
                 .setRequired(true))
         .addStringOption(option => 
             option.setName('sender')
-                .setDescription('sender text to filter by')
-                .setRequired(false))
+                .setDescription('sender address')
+                .setRequired(true))
         .addStringOption(option => 
             option.setName('content')
                 .setDescription('Content text to filter by')

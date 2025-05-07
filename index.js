@@ -187,18 +187,20 @@ setInterval(async () => {
 				)}
 			
 			)
-			console.log("here")
-			console.log(mailSummary)
+		
 			
 			
+			if(Object.keys(mailSummary) == 0) return
 
 			//combine channel
 			for (let k of Object.keys(mailSummary)){
 
+				if(!mailSummary[k]) return
+				
 				const embed = new EmbedBuilder()
 				.setTitle(`📬 Results for tracker`)
 				.setColor(0x00ADEF)
-				.setDescription(mailSummary[k].slice(0,4085))
+				.setDescription(mailSummary[k].slice(0,4085) || "no data")
 				.setFooter({ text: 'Filtered using your watcher settings' })
 				.setTimestamp();
 		
@@ -219,7 +221,7 @@ setInterval(async () => {
 		const channel = await client.channels.fetch('1369373549533466698');
 		await channel.send('There was an error fetching the emails.');
 		}
-  }, 1000 * 10 );
+  }, 1000 * 10);
   
 
 

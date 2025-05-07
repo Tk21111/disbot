@@ -74,13 +74,17 @@ async function searchEmails(searchCriteria = {}, imapUser = {}) {
         }
 
         // Build search criteria array
-        const searchParams = [];
+        let searchParams = [];
+
+        if(!all){
+          searchParams = ['UNSEEN']
+        }
 
         // Add date filter - use different time ranges for different purposes
         console.log(all)
         const dateFilter = all 
           ? new Date(new Date().setDate(new Date().getDate() - 7)) // Last 7 days
-          : new Date(new Date().setHours(new Date().getHours() - 1)); // Last hour
+          : new Date(new Date().setHours(new Date().getHours() - 2)); // Last hour
         
         searchParams.push(["SINCE", dateFilter]);
 
@@ -185,6 +189,19 @@ async function searchEmails(searchCriteria = {}, imapUser = {}) {
                 imap.end();
               }
             });
+
+            //mark attributes email as read
+            msg.once('attributes', function(attrs) {
+              let uid = attrs.uid;
+              imap.addFlags(uid, ['\\Seen'], function (err) {
+                  if (err) {
+                      console.log(err);
+                  } else {
+                      console.log("Done, marked email as read!")
+                  }
+              });
+            });
+            
           });
 
           // Handle fetch errors
@@ -193,6 +210,8 @@ async function searchEmails(searchCriteria = {}, imapUser = {}) {
             clearTimeout(processingTimeout);
             imap.end(); // End the connection, which will resolve the promise
           });
+
+          
 
           // Handle fetch completion
           f.once("end", function () {
