@@ -1,0 +1,7 @@
+name = "your-worker-name"
+main = "src/index.js" # or wherever your entry file is
+compatibility_date = "2024-05-08"
+
+[vars]
+# Optional non-sensitive env vars can go here
+NODE_ENV = "production"
