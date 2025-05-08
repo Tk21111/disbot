@@ -3,6 +3,13 @@ const path = require('node:path');
 const { Client, Collection, Events, GatewayIntentBits, MessageFlags, EmbedBuilder } = require('discord.js');
 const client = new Client({ intents: [GatewayIntentBits.MessageContent , GatewayIntentBits.GuildMembers , GatewayIntentBits.Guilds] });
 
+const express = require('express');
+const app = express()
+
+app.get("/", (req , res) => {
+	res.send("Hello world")
+})
+
 const dotenv = require('dotenv');
 dotenv.config()
 
