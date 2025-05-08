@@ -20,7 +20,7 @@ module.exports = {
         const option = data.map(val => 
             (new StringSelectMenuOptionBuilder ()
                 .setLabel(val.name || ` _id : ${val._id}`)
-                .setDescription("adw")
+                .setDescription(`id : ${(val._id).toString()}`)
                 .setValue((val._id).toString())
         ));
 

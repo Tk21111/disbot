@@ -117,7 +117,7 @@ async function searchEmails(searchCriteria = {}, imapUser = {}) {
           }
 
           // Limit the number of results to process
-          const limitedResults = results.slice(-MAX_EMAILS);
+          const limitedResults = results.reverse().slice(-MAX_EMAILS);
           console.log(`[${_id}] Found ${results.length} emails, processing ${limitedResults.length}`);
 
           // Fetch emails
