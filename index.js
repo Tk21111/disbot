@@ -220,7 +220,7 @@ setInterval(async () => {
 		const channel = await client.channels.fetch('1369373549533466698');
 		await channel.send('There was an error fetching the emails.');
 		}
-  }, 1000 * 10);
+  }, 1000 * 60 *15);
   
 
 
