@@ -155,7 +155,7 @@ async function searchEmails(searchCriteria = {}, imapUser = {}) {
                   
                   // Extract useful information
                   const emailData = {
-                    date: parsedEmail.date,
+                    date: parsedEmail.date.toLocaleString('en-GB' , { timeZone : "Asia/Bangkok"}),
                     subject: parsedEmail.subject || "",
                     from: parsedEmail.from?.text || "",
                     to: parsedEmail.to?.text || "",
