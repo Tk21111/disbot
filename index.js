@@ -96,7 +96,7 @@ client.on(Events.InteractionCreate , async (interaction) => {
 				console.log(mails)
 		
 				const mailSummary = mails.length > 0
-						? mails.map((m, i) => `**${i + 1}.** ${m.subject || 'No Subject'} from ${m.from || 'Unknown Sender'} \n ${m.content || 'No content'} \n ${m.attachment || 'No attachment'} \n ${m.date}`).join('\n')
+						? mails.map((m, i) => `**${i + 1}.** ${m.subject || 'No Subject'} from ${m.from || 'Unknown Sender'} \n ${m.content || 'No content'} \n ${m.attachment || 'No attachment'} \n ${m.date} \n ------------------------------------------------`).join('\n')
 						: 'No matching emails found.';
 
 					const embed = new EmbedBuilder()
@@ -192,7 +192,7 @@ setInterval(async () => {
 						if(err) {reject(err); console.log("jwt.vertify err : " + err); }
 						const mails = await searchEmails({ sender : i.sender , subject : i.content , _id : i._id , all : false} , { email : i.email , pwd : decode.pwd})
 						
-						mailSummary[i.channel] = mailSummary[i.channel] ? mailSummary[i.channel] += mails.map((m, i) => `**${i + 1}.** ${m.subject || 'No Subject'} from ${m.from || 'Unknown Sender'} \n ${m.content || 'No content'} \n ${m.attachment || 'No attachment'} \n ${m.date || ""}`).join('\n') : mails.map((m, i) => `**${i + 1}.** ${m.subject || 'No Subject'} from ${m.from || 'Unknown Sender'} \n ${m.content || 'No content'} \n ${m.attachment || 'No attachment'} \n ${m.date || ""}`).join('\n')
+						mailSummary[i.channel] = mailSummary[i.channel] ? mailSummary[i.channel] += mails.map((m, i) => `**${i + 1}.** ${m.subject || 'No Subject'} from ${m.from || 'Unknown Sender'} \n ${m.content || 'No content'} \n ${m.attachment || 'No attachment'} \n ${m.date || ""} \n ------------------------------------------------`).join('\n') : mails.map((m, i) => `**${i + 1}.** ${m.subject || 'No Subject'} from ${m.from || 'Unknown Sender'} \n ${m.content || 'No content'} \n ${m.attachment || 'No attachment'} \n ${m.date || ""} \n ------------------------------------------------`).join('\n')
 						resolve(null)
 					}
 				)}

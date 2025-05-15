@@ -83,7 +83,7 @@ async function searchEmails(searchCriteria = {}, imapUser = {}) {
         // Add date filter - use different time ranges for different purposes
         console.log(all)
         const dateFilter = all 
-          ? new Date(new Date().setDate(new Date().getDate() - 7)) // Last 7 days
+          ? new Date(new Date().setDate(new Date().getDate() - 21)) // Last 7 days
           : new Date(new Date().setHours(new Date().getHours() - 2)); // Last hour
         
         searchParams.push(["SINCE", dateFilter]);
