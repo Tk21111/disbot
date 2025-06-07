@@ -34,7 +34,7 @@ app.get("/", async (req , res) => {
 					async (err , decode) => {
 		
 						if(err) {reject(err); console.log("jwt.vertify err : " + err); }
-						const mails = await searchEmails({ sender : i.sender , subject : i.content , _id : i._id , all : false} , { email : i.email , pwd : decode.pwd})
+						const mails = await searchEmails({ sender : i.sender , subject : i.content , _id : i._id , all : false , checkDate : i.checkDate} , { email : i.email , pwd : decode.pwd})
 						
 						mailSummary[i.channel] = mailSummary[i.channel] ? mailSummary[i.channel] += mails.map((m, i) => `**${i + 1}.** ${m.subject || 'No Subject'} from ${m.from || 'Unknown Sender'} \n ${m.content || 'No content'} \n ${m.attachment || 'No attachment'} \n ${m.date || ""} \n ------------------------------------------------`).join('\n') : mails.map((m, i) => `**${i + 1}.** ${m.subject || 'No Subject'} from ${m.from || 'Unknown Sender'} \n ${m.content || 'No content'} \n ${m.attachment || 'No attachment'} \n ${m.date || ""} \n ------------------------------------------------`).join('\n')
 						resolve(null)
@@ -149,6 +149,8 @@ client.on(Events.InteractionCreate , async (interaction) => {
 
 		const _id = interaction.values[0];
 		const result = await Watcher.findById(_id);
+
+		if(result.checkDate === null) return;
 
 		//const mails = await searchEmails({ sender : result.sender , subject : result.content } , { email : result.email , pwd : result.pwd})
 	

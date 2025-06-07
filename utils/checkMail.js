@@ -13,7 +13,9 @@ const bcrypt = require('bcrypt');
  * @returns {Promise<Array>} - Array of email objects
  */
 async function searchEmails(searchCriteria = {}, imapUser = {}) {
-  const { sender, subject, content, all, _id } = searchCriteria;
+  const { sender, subject, content, all, _id , checkDate} = searchCriteria;
+
+  if(new Date(checkDate) > new Date(Date.now())) return null
   const MAX_EMAILS = 10; // Limit number of emails to process
 
   // Email array to store fetched emails

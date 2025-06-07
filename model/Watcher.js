@@ -35,6 +35,12 @@ const Watcher = new Schema({
     name : {
         type : String,
         required : true
+    },
+
+    //in case user don't know sender but know date
+    checkDate : {
+        type : Date,
+        default : null
     }
 })
 

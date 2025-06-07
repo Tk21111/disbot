@@ -16,11 +16,16 @@ module.exports = {
         .addStringOption(option => 
             option.setName('sender')
                 .setDescription('sender address')
-                .setRequired(true))
+                .setRequired(false))
         .addStringOption(option => 
             option.setName('content')
                 .setDescription('Content text to filter by')
-                .setRequired(false)),
+                .setRequired(false))
+        .addStringOption(opt => 
+            opt.setName('checkDate ex: 2025-06-07')
+                .setDescription("set the name")
+        )
+                ,
     
     async execute(interaction) {
         try {
@@ -31,18 +36,19 @@ module.exports = {
             const sender = interaction.options.getString('sender');
             const content = interaction.options.getString('content');
             const name = interaction.options.getString('name');
+            const checkDate = interaction.options.getString('checkDate');
             
             // Create configuration object with the provided filters
             const watcherConfig = {
                 email,
                 sender,
                 content,
-                name
+                name,
+                checkDate
             };
             
             
            
-            // For example: saveWatcherConfig(interaction.guildId, interaction.user.id, watcherConfig);
             const result = await Watcher.create({
                 email,
                 sender,
@@ -50,7 +56,8 @@ module.exports = {
                 name,
                 watcher : interaction.user.id,
                 guild : interaction.guildId,
-                channel : interaction.channelId
+                channel : interaction.channelId,
+                checkDate
 
             })
 
@@ -73,6 +80,11 @@ module.exports = {
                     {
                         name: 'Sender Email',
                         value: watcherConfig.email,
+                        inline: true,
+                    },
+                    {
+                        name: 'Check in Date',
+                        value: watcherConfig.checkDate,
                         inline: true,
                     }
                 )
