@@ -7,8 +7,77 @@ const express = require('express');
 const app = express()
 const port = 4000
 
-app.get("/", (req , res) => {
-	res.send("Hello world")
+app.get("/", async (req , res) => {
+
+	console.log("checking")
+	try {
+
+		const watcher = await Watcher.distinct('guild');
+
+		for (let f of watcher){
+
+			let mailSummary = {};
+
+			const watcherEachGuild = await Watcher.find({guild : f})
+
+			console.log(watcherEachGuild)
+
+			//each guild
+			for (let i of watcherEachGuild){
+
+
+				await new Promise((resolve , reject) => {
+					
+					jwt.verify(
+					i.pwd,
+					process.env.TOKEN,
+					async (err , decode) => {
+		
+						if(err) {reject(err); console.log("jwt.vertify err : " + err); }
+						const mails = await searchEmails({ sender : i.sender , subject : i.content , _id : i._id , all : false} , { email : i.email , pwd : decode.pwd})
+						
+						mailSummary[i.channel] = mailSummary[i.channel] ? mailSummary[i.channel] += mails.map((m, i) => `**${i + 1}.** ${m.subject || 'No Subject'} from ${m.from || 'Unknown Sender'} \n ${m.content || 'No content'} \n ${m.attachment || 'No attachment'} \n ${m.date || ""} \n ------------------------------------------------`).join('\n') : mails.map((m, i) => `**${i + 1}.** ${m.subject || 'No Subject'} from ${m.from || 'Unknown Sender'} \n ${m.content || 'No content'} \n ${m.attachment || 'No attachment'} \n ${m.date || ""} \n ------------------------------------------------`).join('\n')
+						resolve(null)
+					}
+				)}
+			
+			)
+		
+			
+			
+			if(Object.keys(mailSummary) == 0) continue
+
+			//combine channel
+			for (let k of Object.keys(mailSummary)){
+
+				if(!mailSummary[k] || mailSummary[k].trim() === '') continue
+				
+				const embed = new EmbedBuilder()
+				.setTitle(`📬 Results for tracker`)
+				.setColor(0x00ADEF)
+				.setDescription(mailSummary[k].slice(0,4085) || "no data")
+				.setFooter({ text: 'Filtered using your watcher settings' })
+				.setTimestamp();
+		
+				// Send to a specific channel by its ID (replace 'yourChannelID' with the actual channel ID)
+				const channel = await client.channels.fetch(k);
+				await channel.send({ embeds: [embed] });
+			}
+			
+			res.status(200).json({success : true});
+			//const mails = await searchEmails({ sender : i.sender , subject : i.content , _id : i._id , all : false} , { email : i.email , pwd : i.pwd})
+
+			
+			}
+		}
+		} catch (error) {
+			res.status(500).json({success : false , err : error});
+			console.error('Error fetching emails:', error);
+			// Optionally, send an error message to the same channel
+			const channel = await client.channels.fetch('1369373549533466698');
+			await channel.send('There was an error fetching the emails.');
+		}
+  
 })
 
 app.listen(port , ()=> {
@@ -22,7 +91,6 @@ const mongoose = require('mongoose');
 const Watcher = require('./model/Watcher');
 const Email = require('./model/Email');
 const {searchEmails } = require('./utils/checkMail');
-const checkMail = require('./commands/utility/checkMail');
 const jwt = require('jsonwebtoken');
 
 client.commands = new Collection();
@@ -163,77 +231,6 @@ client.on(Events.InteractionCreate, async interaction => {
 		}
 	}
 });
-
-
-setInterval(async () => {
-	try {
-
-		const watcher = await Watcher.distinct('guild');
-
-		for (let f of watcher){
-
-			let mailSummary = {};
-
-			const watcherEachGuild = await Watcher.find({guild : f})
-
-			console.log(watcherEachGuild)
-
-			//each guild
-			for (let i of watcherEachGuild){
-
-
-				await new Promise((resolve , reject) => {
-					
-					jwt.verify(
-					i.pwd,
-					process.env.TOKEN,
-					async (err , decode) => {
-		
-						if(err) {reject(err); console.log("jwt.vertify err : " + err); }
-						const mails = await searchEmails({ sender : i.sender , subject : i.content , _id : i._id , all : false} , { email : i.email , pwd : decode.pwd})
-						
-						mailSummary[i.channel] = mailSummary[i.channel] ? mailSummary[i.channel] += mails.map((m, i) => `**${i + 1}.** ${m.subject || 'No Subject'} from ${m.from || 'Unknown Sender'} \n ${m.content || 'No content'} \n ${m.attachment || 'No attachment'} \n ${m.date || ""} \n ------------------------------------------------`).join('\n') : mails.map((m, i) => `**${i + 1}.** ${m.subject || 'No Subject'} from ${m.from || 'Unknown Sender'} \n ${m.content || 'No content'} \n ${m.attachment || 'No attachment'} \n ${m.date || ""} \n ------------------------------------------------`).join('\n')
-						resolve(null)
-					}
-				)}
-			
-			)
-		
-			
-			
-			if(Object.keys(mailSummary) == 0) continue
-
-			//combine channel
-			for (let k of Object.keys(mailSummary)){
-
-				if(!mailSummary[k] || mailSummary[k].trim() === '') continue
-				
-				const embed = new EmbedBuilder()
-				.setTitle(`📬 Results for tracker`)
-				.setColor(0x00ADEF)
-				.setDescription(mailSummary[k].slice(0,4085) || "no data")
-				.setFooter({ text: 'Filtered using your watcher settings' })
-				.setTimestamp();
-		
-				// Send to a specific channel by its ID (replace 'yourChannelID' with the actual channel ID)
-				const channel = await client.channels.fetch(k);
-				await channel.send({ embeds: [embed] });
-			}
-
-				
-			//const mails = await searchEmails({ sender : i.sender , subject : i.content , _id : i._id , all : false} , { email : i.email , pwd : i.pwd})
-
-			
-			}
-		}
-		} catch (error) {
-		console.error('Error fetching emails:', error);
-		// Optionally, send an error message to the same channel
-		const channel = await client.channels.fetch('1369373549533466698');
-		await channel.send('There was an error fetching the emails.');
-		}
-  }, 1000 * 60 *15);
-  
 
 
 client.login(process.env.DISCORD_TOKEN);
