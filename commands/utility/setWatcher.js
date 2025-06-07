@@ -82,11 +82,6 @@ module.exports = {
                         name: 'Sender Email',
                         value: watcherConfig.email,
                         inline: true,
-                    },
-                    {
-                        name: 'Check in Date',
-                        value: watcherConfig.checkDate,
-                        inline: true,
                     }
                 )
                 .addFields(

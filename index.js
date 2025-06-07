@@ -24,8 +24,10 @@ app.get("/", async (req , res) => {
 
 			//each guild
 			for (let i of watcherEachGuild){
-
+				console.log(i.checkDate)
+				console.log(new Date())
 				if(new Date(i.checkDate) > new Date()) {
+					console.log(i.name)
 					continue;
 				} 
 
