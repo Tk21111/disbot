@@ -22,7 +22,7 @@ module.exports = {
                 .setDescription('Content text to filter by')
                 .setRequired(false))
         .addStringOption(opt => 
-            opt.setName('checkDate')
+            opt.setName('checkdate')
                 .setDescription('Date to start checking from (e.g., 2025-06-07)')
                 .setRequired(false))
         ,
@@ -36,7 +36,8 @@ module.exports = {
             const sender = interaction.options.getString('sender');
             const content = interaction.options.getString('content');
             const name = interaction.options.getString('name');
-            const checkDate = interaction.options.getString('checkDate');
+            //lower case no space 
+            const checkDate = interaction.options.getString('checkdate');
             
             // Create configuration object with the provided filters
             const watcherConfig = {
