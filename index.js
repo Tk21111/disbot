@@ -20,11 +20,16 @@ app.get("/", async (req , res) => {
 
 			const watcherEachGuild = await Watcher.find({guild : f})
 
-			console.log(watcherEachGuild)
+			//console.log(watcherEachGuild)
 
 			//each guild
 			for (let i of watcherEachGuild){
 
+				if(new Date(i.checkDate) > new Date()) {
+					continue;
+				} 
+
+	
 
 				await new Promise((resolve , reject) => {
 					
@@ -39,7 +44,8 @@ app.get("/", async (req , res) => {
 						mailSummary[i.channel] = mailSummary[i.channel] ? mailSummary[i.channel] += mails.map((m, i) => `**${i + 1}.** ${m.subject || 'No Subject'} from ${m.from || 'Unknown Sender'} \n ${m.content || 'No content'} \n ${m.attachment || 'No attachment'} \n ${m.date || ""} \n ------------------------------------------------`).join('\n') : mails.map((m, i) => `**${i + 1}.** ${m.subject || 'No Subject'} from ${m.from || 'Unknown Sender'} \n ${m.content || 'No content'} \n ${m.attachment || 'No attachment'} \n ${m.date || ""} \n ------------------------------------------------`).join('\n')
 						resolve(null)
 					}
-				)}
+				)
+			}
 			
 			)
 		
