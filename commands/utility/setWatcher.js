@@ -22,10 +22,10 @@ module.exports = {
                 .setDescription('Content text to filter by')
                 .setRequired(false))
         .addStringOption(opt => 
-            opt.setName('checkDate ex: 2025-06-07')
-                .setDescription("set the name")
-        )
-                ,
+            opt.setName('checkDate')
+                .setDescription('Date to start checking from (e.g., 2025-06-07)')
+                .setRequired(false))
+        ,
     
     async execute(interaction) {
         try {
