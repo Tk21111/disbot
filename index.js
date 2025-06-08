@@ -24,8 +24,10 @@ app.get("/", async (req , res) => {
 
 			//each guild
 			for (let i of watcherEachGuild){
-				
+				console.log(i.checkDate)
+				console.log(new Date())
 				if(new Date(i.checkDate) > new Date()) {
+					console.log(i.name)
 					continue;
 				} 
 
@@ -39,7 +41,7 @@ app.get("/", async (req , res) => {
 					async (err , decode) => {
 		
 						if(err) {reject(err); console.log("jwt.vertify err : " + err); }
-						const mails = await searchEmails({ sender : i.sender , subject : i.content , _id : i._id , all : i.checkDate ?  new Date(new Date().setDate(new Date().getDate() - 1 )):  new Date(new Date().setHours(new Date().getHours() - 2))  , checkDate : i.checkDate} , { email : i.email , pwd : decode.pwd})
+						const mails = await searchEmails({ sender : i.sender , subject : i.content , _id : i._id , all : false , checkDate : i.checkDate} , { email : i.email , pwd : decode.pwd})
 						
 						mailSummary[i.channel] = mailSummary[i.channel] ? mailSummary[i.channel] += mails.map((m, i) => `**${i + 1}.** ${m.subject || 'No Subject'} from ${m.from || 'Unknown Sender'} \n ${m.content || 'No content'} \n ${m.attachment || 'No attachment'} \n ${m.date || ""} \n ------------------------------------------------`).join('\n') : mails.map((m, i) => `**${i + 1}.** ${m.subject || 'No Subject'} from ${m.from || 'Unknown Sender'} \n ${m.content || 'No content'} \n ${m.attachment || 'No attachment'} \n ${m.date || ""} \n ------------------------------------------------`).join('\n')
 						resolve(null)
@@ -167,7 +169,7 @@ client.on(Events.InteractionCreate , async (interaction) => {
 
 				if(err) return console.log("jwt.vertify err : " + err);
 
-				const mails = await searchEmails({ sender : result.sender , subject : result.content , _id : _id , all :  new Date(new Date().setDate(new Date().getDate() - 21))} , { email : result.email , pwd : decode.pwd})
+				const mails = await searchEmails({ sender : result.sender , subject : result.content , _id : _id , all : true} , { email : result.email , pwd : decode.pwd})
 
 				console.log(mails)
 		
